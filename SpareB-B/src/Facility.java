@@ -1,7 +1,7 @@
 //Another base class and subclass of Accommodation
 //Represents a facility or amenity that can be available in an accomm
 
-public class Facility
+public class Facility implements Pricable
 {
     protected String name;
     protected String description;
@@ -45,6 +45,12 @@ public class Facility
     //Calculates the total cost for using this facility
     public double calculateCost(int quantity)
     {
-        return additionalCost * quantity;
+        return additionalCost * quantity; //Returns price * quantity.
+    }
+
+    @Override
+    public double calculateCost()
+    {
+        return additionalCost; //Returns the single-unit price.
     }
 }

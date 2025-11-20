@@ -1,8 +1,7 @@
 //SpecialRequest class represents additional guest requests or services beyond standard accommodation.
 import java.time.LocalDateTime;
 
-public class SpecialRequest
-{
+public class SpecialRequest implements Pricable {
     private String requestId;
     private String category;
     private String description;
@@ -89,7 +88,10 @@ public class SpecialRequest
         this.completeDate = LocalDateTime.now();
     }
 
-    public double calculateCost() {
+    @Override
+    public double calculateCost()
+    {
         return additionalCost;
     }
+
 }

@@ -1,4 +1,6 @@
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 // Main class for the Hotel Management System
 
@@ -92,7 +94,7 @@ public class HotelManagementSystem
         Address address4 = new Address("321 Elm St", "Liverpool", "England", "L1 0RN", "UK");
         Address address5 = new Address("654 Maple Dr", "Glasgow", "Scotland", "G1 1AA", "UK");
 
-        Guest guest1 = new Guest("GUEST1", "Sujeeta Gurung", "gurungsuj99@email.com", "7743222837",
+        Guest guest1 = new Guest("GUEST1", "Sujita Gurung", "gurungsuj99@email.com", "7743222837",
                 address1, LocalDate.now());
         Guest guest2 = new Guest("GUEST2", "Sohan Giri", "sohan14@email.com", "7918064106",
                 address2, LocalDate.now().minusDays(30));
@@ -105,17 +107,29 @@ public class HotelManagementSystem
 
         // 5. Create Bookings
         System.out.println("5. Creating Bookings...");
+        // Declare variables FIRST
+        Booking booking1 = null;
+        Booking booking2 = null;
+        Booking booking3 = null;
+
+        // Create list AFTER bookings exist
+        List<Booking> allBookings = new ArrayList<>();
+
         LocalDate checkIn1 = LocalDate.now().plusDays(7);
         LocalDate checkOut1 = LocalDate.now().plusDays(10);
-        Booking booking1 = new Booking("B00K1", guest1, room101, checkIn1, checkOut1, 2);
+        booking1 = new Booking("B00K1", guest1, room101, checkIn1, checkOut1, 2);
+        allBookings.add(booking1);
 
         LocalDate checkIn2 = LocalDate.now().plusDays(3);
         LocalDate checkOut2 = LocalDate.now().plusDays(5);
-        Booking booking2 = new Booking("B00K2", guest2, suite201, checkIn2, checkOut2, 2);
+        booking2 = new Booking("B00K2", guest2, suite201, checkIn2, checkOut2, 2);
+        allBookings.add(booking2);
 
         LocalDate checkIn3 = LocalDate.now().plusDays(14);
-        LocalDate checkOut3 = LocalDate.now().plusDays(15); // One day event
-        Booking booking3 = new Booking("B00K3", guest3, eventSpace02, checkIn3, checkOut3, 100);
+        LocalDate checkOut3 = LocalDate.now().plusDays(15);
+        booking3 = new Booking("B00K3", guest3, eventSpace02, checkIn3, checkOut3, 100);
+        allBookings.add(booking3);
+
 
         // 6. Create Special Requests
         System.out.println("6. Creating Special Requests...");
@@ -131,16 +145,16 @@ public class HotelManagementSystem
         request3.setAdditionalCost(50.0);
         request3.approveRequest();
 
+        //Attach requests to bookings
+        booking1.addSpecialRequest(request1);
+        booking2.addSpecialRequest(request2);
+        booking3.addSpecialRequest(request3);
+
         // 7. Create Payments
         System.out.println("7. Creating Payments...");
-        Payment payment1 = new Payment("P001", booking1.calculateTotalPrice(), "CREDIT_CARD");
-        payment1.processPayment();
-
-        Payment payment2 = new Payment("P002", booking2.calculateTotalPrice(), "DEBIT_CARD");
-        payment2.processPayment();
-
-        Payment payment3 = new Payment("P003", booking3.calculateTotalPrice(), "CREDIT_CARD");
-        payment3.processPayment();
+        Payment payment1 = new Payment("P001", booking1, "CREDIT_CARD");
+        Payment payment2 = new Payment("P002", booking2, "DEBIT_CARD");
+        Payment payment3 = new Payment("P003", booking3, "CREDIT_CARD");
 
         // 8. Create Reviews
         System.out.println("8. Creating Reviews...");
@@ -223,12 +237,28 @@ public class HotelManagementSystem
 
         // Test room availability
         System.out.println("\n=== AVAILABILITY STATUS ===");
-        System.out.println("Room 101 Available: " + room101.isAvailable());
-        System.out.println("Room 103 Available: " + room103.isAvailable());
-        System.out.println("Suite 201 Available: " + suite201.isAvailable());
-        System.out.println("Suite 203 (Honeymoon) Available: " + suite203.isAvailable());
-        System.out.println("EventSpace 01 Available: " + eventSpace01.isAvailable());
-        System.out.println("EventSpace 07 (Terrace) Available: " + eventSpace07.isAvailable());
+        LocalDate today = LocalDate.now();
+
+        System.out.println("Room 101 Available (Date Logic): " + room101.isAvailableBasedOnDate(today, allBookings));
+        System.out.println("Room 102 Available (Date Logic): " + room102.isAvailableBasedOnDate(today, allBookings));
+        System.out.println("Room 103 Available (Date Logic): " + room103.isAvailableBasedOnDate(today, allBookings));
+        System.out.println("Room 108 Available (Date Logic): " + room108.isAvailableBasedOnDate(today, allBookings));
+
+        System.out.println("Suite 201 Available (Date Logic): " + suite201.isAvailableBasedOnDate(today, allBookings));
+        System.out.println("Suite 202 Available (Date Logic): " + suite202.isAvailableBasedOnDate(today, allBookings));
+        System.out.println("Suite 206 Available (Date Logic): " + suite206.isAvailableBasedOnDate(today, allBookings));
+        System.out.println("Suite 203 Available (Date Logic): " + suite203.isAvailableBasedOnDate(today, allBookings));
+
+        System.out.println("EventSpace 01 Available (Date Logic): " + eventSpace01.isAvailableBasedOnDate(today, allBookings));
+        System.out.println("EventSpace 02 Available (Date Logic): " + eventSpace02.isAvailableBasedOnDate(today, allBookings));
+        System.out.println("EventSpace 05 Available (Date Logic): " + eventSpace05.isAvailableBasedOnDate(today, allBookings));
+        System.out.println("EventSpace 07 Available (Date Logic): " + eventSpace07.isAvailableBasedOnDate(today, allBookings));
+
+        LocalDate start = LocalDate.now().plusDays(11);
+        LocalDate end = LocalDate.now().plusDays(12);
+
+        boolean canBookRoom101 = room101.isAvailableDuringRange(start, end, allBookings);
+        System.out.println("Room101 available for new booking: " + canBookRoom101);
 
         // Test payment status
         System.out.println("\n=== PAYMENT STATUS ===");
@@ -238,7 +268,8 @@ public class HotelManagementSystem
 
         // Test refund functionality
         System.out.println("\n=== REFUND TEST ===");
-        if (payment1.isRefundable()) {
+        if (payment1.isRefundable())
+        {
             System.out.println("Payment 1 is refundable");
             payment1.refundPayment(100.0);
             System.out.println("After refund - Payment 1 Status: " + payment1.getStatus());

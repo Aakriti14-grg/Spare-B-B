@@ -14,12 +14,16 @@ public class Payment
     private double refundAmount;
     private LocalDateTime refundDate;
 
+    private Booking booking;
+
+
     //Placeholder object || Default constructor
     public Payment() {}
 
-    public Payment(String paymentID, double amount, String paymentMethod) {
+    public Payment(String paymentID, Booking booking, String paymentMethod) {
         this.paymentID = paymentID;
-        this.amount = amount;
+        this.booking = booking;
+        this.amount = booking.calculateTotalPrice();  ;
         this.paymentMethod = paymentMethod;
         this.status = "PENDING";
         this.paymentDate = LocalDateTime.now();
@@ -55,7 +59,7 @@ public class Payment
     public void setRefundAmount(double refundAmount) { this.refundAmount = refundAmount; }
     public void setRefundDate(LocalDateTime refundDate) { this.refundDate = refundDate; }
 
-    // Helper method to validate status
+    // Method to validate status
     private boolean isValidStatus(String status)
     {
         String upperStatus = status.toUpperCase();
@@ -65,14 +69,21 @@ public class Payment
                 upperStatus.equals("REFUNDED");
     }
 
-    // Methods
+    // Process Payment
     public boolean processPayment()
     {
         this.status = "COMPLETED";
         this.paymentDate = LocalDateTime.now();
+
+        // Mark accommodation as unavailable AFTER payment
+        if (booking != null)
+        {
+            booking.getAccommodation().setIsAvailable(false);
+        }
         return true;
     }
 
+    //refund logic
     public boolean refundPayment(double amount)
     {
         if (amount <= 0 || amount > this.amount)

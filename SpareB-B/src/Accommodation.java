@@ -1,6 +1,7 @@
 //Accommodation class is the abstract class.
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDate;
 
 //Base class
 public abstract class Accommodation
@@ -107,6 +108,39 @@ public abstract class Accommodation
             }
         }
     }
+
+    public boolean isAvailableBasedOnDate(LocalDate date, List<Booking> allBookings) {
+        for (Booking b : allBookings) {
+            if (b.getAccommodation() == this &&
+                    !date.isBefore(b.getCheckInDate()) &&
+                    !date.isAfter(b.getCheckOutDate())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean isAvailableDuringRange(LocalDate start, LocalDate end, List<Booking> allBookings) {
+        for (Booking b : allBookings) {
+
+            if (b.getAccommodation() == this) {
+
+                LocalDate bookedStart = b.getCheckInDate();
+                LocalDate bookedEnd = b.getCheckOutDate();
+
+                // Overlap logic: ranges collide
+                boolean overlap =
+                        !start.isAfter(bookedEnd) &&
+                                !end.isBefore(bookedStart);
+
+                if (overlap) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
 
     public void printDetails()
     {
